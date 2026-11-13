@@ -140,8 +140,38 @@ body.perf .atmosphere {
   letter-spacing: 0.04em;
 }
 
+.tabs {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 8px;
+  padding: 18px clamp(24px, 4vw, 64px) 0;
+}
+
+.tab {
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ink-muted);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tab.is-active {
+  color: #1a1408;
+  background: linear-gradient(135deg, #f0d9a0, var(--accent));
+  border-color: transparent;
+}
+
+.tab.is-focused {
+  box-shadow: 0 0 0 3px var(--focus);
+}
+
 .shell {
-  padding: 28px clamp(24px, 4vw, 64px) 140px;
+  padding: 28px clamp(24px, 4vw, 64px) 80px;
   display: grid;
   gap: clamp(36px, 5vw, 64px);
 }
@@ -255,19 +285,66 @@ select:focus-visible {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 148px;
+  gap: 12px;
+  min-height: 168px;
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   color: var(--ink);
   text-align: left;
-  cursor: pointer;
   background:
     linear-gradient(160deg, rgba(255, 255, 255, 0.08), transparent 42%),
     var(--tile, #243247);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
   transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease);
   animation: rise 0.55s var(--ease) both;
+}
+
+.tile-btn {
+  appearance: none;
+  align-self: stretch;
+  margin-top: auto;
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  color: #1a1408;
+  background: linear-gradient(135deg, #f0d9a0, var(--accent));
+}
+
+.tile-btn.is-done,
+.tile-btn:disabled {
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.28);
+  cursor: default;
+}
+
+.tile-btn.is-focused {
+  box-shadow: 0 0 0 3px var(--focus);
+}
+
+.custom-install {
+  margin-top: 28px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.custom-install h3 {
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+}
+
+.inline-form {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-items: end;
+}
+
+.dns-panel .tips {
+  max-width: 62ch;
 }
 
 .app-tile:nth-child(1) { animation-delay: 0.05s; }

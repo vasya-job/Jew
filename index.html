@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0a1628" />
-  <meta name="description" content="Эфир — быстрая оболочка для Hisense VIDAA без рекламы" />
+  <meta name="description" content="Эфир — DNS-магазин приложений для Hisense VIDAA" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;500;700;800&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-  <title>Эфир — оболочка ТВ</title>
+  <title>Эфир — магазин</title>
 </head>
 <body>
   <div class="atmosphere" aria-hidden="true">
@@ -21,132 +21,85 @@
   </div>
 
   <header class="topbar">
-    <div class="brand" tabindex="-1">
+    <div class="brand">
       <span class="brand-mark" aria-hidden="true"></span>
       <span class="brand-name">Эфир</span>
     </div>
     <div class="clock" id="clock" aria-live="polite"></div>
   </header>
 
-  <main class="shell">
-    <section class="hero" aria-labelledby="hero-title">
-      <p class="eyebrow">Hisense · VIDAA · без рекламы</p>
-      <h1 id="hero-title">Эфир</h1>
-      <p class="lede">Ваш экран без баннеров: Apple TV, свои ярлыки и навигация с пульта — всё летает.</p>
-      <div class="hero-actions">
-        <button class="btn btn-primary" data-nav data-action="launch-apple" type="button">
-          Открыть Apple TV
-        </button>
-        <button class="btn btn-ghost" data-nav data-action="open-panel" data-panel="tips" type="button">
-          Стабильность
-        </button>
-      </div>
-    </section>
-
-    <section class="apps" aria-labelledby="apps-title">
-      <div class="section-head">
-        <h2 id="apps-title">Приложения</h2>
-        <p>Стрелки пульта — выбор, OK — запуск</p>
-      </div>
-      <div class="app-grid" id="app-grid" role="list"></div>
-    </section>
-  </main>
-
-  <nav class="dock" aria-label="Быстрые действия">
-    <button class="dock-btn" data-nav data-action="open-panel" data-panel="add" type="button">
-      <span class="dock-icon">+</span>
-      <span>Добавить</span>
-    </button>
-    <button class="dock-btn" data-nav data-action="open-panel" data-panel="speed" type="button">
-      <span class="dock-icon">»</span>
-      <span>Скорость</span>
-    </button>
-    <button class="dock-btn" data-nav data-action="open-panel" data-panel="tips" type="button">
-      <span class="dock-icon">◎</span>
-      <span>Apple TV</span>
-    </button>
-    <button class="dock-btn" data-nav data-action="open-panel" data-panel="howto" type="button">
-      <span class="dock-icon">?</span>
-      <span>На ТВ</span>
-    </button>
+  <nav class="tabs" aria-label="Разделы">
+    <button class="tab is-active" data-nav data-tab="home" type="button">Мои приложения</button>
+    <button class="tab" data-nav data-tab="store" type="button">Магазин</button>
+    <button class="tab" data-nav data-tab="dns" type="button">DNS</button>
   </nav>
 
-  <div class="panel-backdrop" id="backdrop" hidden></div>
-
-  <aside class="panel" id="panel-add" hidden aria-labelledby="panel-add-title">
-    <h2 id="panel-add-title">Установить ярлык</h2>
-    <p class="panel-copy">Любой сайт или веб-приложение — появится в сетке как программа.</p>
-    <form id="add-form" class="form">
-      <label>
-        Название
-        <input data-nav name="name" type="text" maxlength="40" placeholder="Например, Кинопоиск" required />
-      </label>
-      <label>
-        Ссылка
-        <input data-nav name="url" type="url" placeholder="https://…" required />
-      </label>
-      <label>
-        Цвет плитки
-        <select data-nav name="color">
-          <option value="#c4a35a">Янтарь</option>
-          <option value="#3d7ea6">Синий</option>
-          <option value="#2f6b4f">Зелёный</option>
-          <option value="#8b3a3a">Бордо</option>
-          <option value="#5c4d7a">Слива</option>
-          <option value="#2a2f36">Графит</option>
-        </select>
-      </label>
-      <div class="form-actions">
-        <button class="btn btn-primary" data-nav type="submit">Сохранить</button>
-        <button class="btn btn-ghost" data-nav data-action="close-panel" type="button">Отмена</button>
+  <main class="shell">
+    <section class="hero" aria-labelledby="hero-title">
+      <p class="eyebrow">Hisense · VIDAA · DNS</p>
+      <h1 id="hero-title">Эфир</h1>
+      <p class="lede" id="hero-lede">Смена DNS на Mac — реклама режется, приложения ставятся из магазина Эфира.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" data-nav data-action="launch-apple" type="button">Открыть Apple TV</button>
+        <button class="btn btn-ghost" data-nav data-tab="store" type="button">В магазин</button>
       </div>
-    </form>
-  </aside>
+    </section>
 
-  <aside class="panel" id="panel-speed" hidden aria-labelledby="panel-speed-title">
-    <h2 id="panel-speed-title">Режим скорости</h2>
-    <p class="panel-copy">Для слабого процессора Hisense: меньше анимаций, мгновенный отклик.</p>
-    <label class="toggle">
-      <input data-nav id="perf-toggle" type="checkbox" />
-      <span>Лёгкий режим (рекомендуется)</span>
-    </label>
-    <label class="toggle">
-      <input data-nav id="reduce-motion" type="checkbox" />
-      <span>Отключить анимации</span>
-    </label>
-    <div class="form-actions">
-      <button class="btn btn-primary" data-nav data-action="close-panel" type="button">Готово</button>
-    </div>
-  </aside>
+    <section class="apps" id="view-home" aria-labelledby="home-title">
+      <div class="section-head">
+        <h2 id="home-title">Установленные</h2>
+        <p>Стрелки — выбор, OK — запуск</p>
+      </div>
+      <div class="app-grid" id="home-grid" role="list"></div>
+    </section>
 
-  <aside class="panel" id="panel-tips" hidden aria-labelledby="panel-tips-title">
-    <h2 id="panel-tips-title">Apple TV без сбоев</h2>
-    <ol class="tips">
-      <li>Открывайте Apple TV из <strong>Эфира</strong> — так меньше фоновых процессов VIDAA.</li>
-      <li>В настройках ТВ отключите автозапуск рекламных виджетов и «рекомендации» на главном экране.</li>
-      <li>После долгого просмотра: Home → выгрузите лишние приложения или перезагрузите ТВ раз в сутки.</li>
-      <li>Сеть: предпочтительно кабель Ethernet или 5 ГГц Wi‑Fi рядом с роутером.</li>
-      <li>Обновляйте только стабильные версии ПО; ваш билд <code>V0000.09.61B.Q0704</code> подходит для веб‑оболочки.</li>
-    </ol>
-    <div class="form-actions">
-      <button class="btn btn-primary" data-nav data-action="launch-apple" type="button">Запустить Apple TV</button>
-      <button class="btn btn-ghost" data-nav data-action="close-panel" type="button">Закрыть</button>
-    </div>
-  </aside>
+    <section class="apps" id="view-store" hidden aria-labelledby="store-title">
+      <div class="section-head">
+        <h2 id="store-title">Магазин</h2>
+        <p>Нажмите «Установить» — ярлык появится в «Мои приложения»</p>
+      </div>
+      <div class="app-grid store-grid" id="store-grid" role="list"></div>
+      <div class="custom-install">
+        <h3>Своё приложение по ссылке</h3>
+        <form id="add-form" class="form inline-form">
+          <label>
+            Название
+            <input data-nav name="name" type="text" maxlength="40" placeholder="Например, Wink" required />
+          </label>
+          <label>
+            Ссылка https
+            <input data-nav name="url" type="url" placeholder="https://…" required />
+          </label>
+          <label>
+            Цвет
+            <select data-nav name="color">
+              <option value="#c4a35a">Янтарь</option>
+              <option value="#3d7ea6">Синий</option>
+              <option value="#2f6b4f">Зелёный</option>
+              <option value="#8b3a3a">Бордо</option>
+              <option value="#5c4d7a">Слива</option>
+              <option value="#2a2f36">Графит</option>
+            </select>
+          </label>
+          <button class="btn btn-primary" data-nav type="submit">Установить</button>
+        </form>
+      </div>
+    </section>
 
-  <aside class="panel" id="panel-howto" hidden aria-labelledby="panel-howto-title">
-    <h2 id="panel-howto-title">Как поставить на Hisense</h2>
-    <ol class="tips">
-      <li>Откройте <strong>браузер</strong> на ТВ и зайдите на адрес этой оболочки.</li>
-      <li>Добавьте страницу в <strong>закладки</strong> / «на рабочий стол» браузера.</li>
-      <li>Сделайте закладку стартовой, если браузер это позволяет.</li>
-      <li>Свои программы: «Добавить» → название и https‑ссылка.</li>
-      <li>Системную рекламу VIDAA полностью убрать нельзя — Эфир обходит её, когда вы сидите в этой оболочке.</li>
-    </ol>
-    <div class="form-actions">
-      <button class="btn btn-primary" data-nav data-action="close-panel" type="button">Понятно</button>
-    </div>
-  </aside>
+    <section class="apps dns-panel" id="view-dns" hidden aria-labelledby="dns-title">
+      <div class="section-head">
+        <h2 id="dns-title">Как это работает</h2>
+      </div>
+      <ol class="tips">
+        <li>На Mac запущен <strong>start-efir.sh</strong> — это ваш DNS и магазин.</li>
+        <li>На Hisense: <strong>Настройки → Сеть → DNS → Вручную</strong> → DNS = IP вашего Mac.</li>
+        <li>Рекламные домены Hisense/VIDAA уходят в «чёрную дыру».</li>
+        <li>Имя <code>efir.home</code> указывает на Mac — открываете магазин без длинных адресов.</li>
+        <li>«Установить» сохраняет приложение на ТВ (в памяти браузера).</li>
+        <li><strong>Важно:</strong> VIDAA не Android — нельзя ставить чужие APK. Ставятся веб‑приложения и сервисы по https. Нативное приложение Apple TV на ТВ по‑прежнему лучше для 4K HDR; из Эфира удобный быстрый вход на tv.apple.com.</li>
+      </ol>
+    </section>
+  </main>
 
   <div class="toast" id="toast" hidden role="status"></div>
   <script src="app.js" defer></script>

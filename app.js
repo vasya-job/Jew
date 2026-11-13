@@ -1,96 +1,34 @@
 (function () {
   "use strict";
 
-  var STORAGE_APPS = "efir.customApps.v1";
+  var STORAGE_INSTALLED = "efir.installed.v2";
   var STORAGE_PERF = "efir.perf.v1";
-  var STORAGE_MOTION = "efir.motion.v1";
 
-  var BUILTIN = [
-    {
-      id: "apple",
-      name: "Apple TV",
-      url: "https://tv.apple.com/",
-      color: "#1c1c1e",
-      glyph: "TV",
-      meta: "стабильный запуск",
-      builtin: true,
-    },
-    {
-      id: "youtube",
-      name: "YouTube",
-      url: "https://www.youtube.com/tv",
-      color: "#b31217",
-      glyph: "YT",
-      meta: "TV-режим",
-      builtin: true,
-    },
-    {
-      id: "netflix",
-      name: "Netflix",
-      url: "https://www.netflix.com/",
-      color: "#831010",
-      glyph: "N",
-      meta: "веб",
-      builtin: true,
-    },
-    {
-      id: "kinopoisk",
-      name: "Кинопоиск",
-      url: "https://www.kinopoisk.ru/",
-      color: "#f5c518",
-      glyph: "КП",
-      meta: "кино",
-      builtin: true,
-    },
-    {
-      id: "ivi",
-      name: "IVI",
-      url: "https://www.ivi.ru/",
-      color: "#e11b22",
-      glyph: "ivi",
-      meta: "онлайн",
-      builtin: true,
-    },
-    {
-      id: "okko",
-      name: "Okko",
-      url: "https://okko.tv/",
-      color: "#2b2d42",
-      glyph: "Ok",
-      meta: "онлайн",
-      builtin: true,
-    },
-    {
-      id: "prime",
-      name: "Prime Video",
-      url: "https://www.primevideo.com/",
-      color: "#0f171e",
-      glyph: "Pv",
-      meta: "веб",
-      builtin: true,
-    },
-    {
-      id: "browser",
-      name: "Браузер",
-      url: "https://www.google.com/",
-      color: "#3d7ea6",
-      glyph: "◎",
-      meta: "поиск",
-      builtin: true,
-    },
+  var CATALOG = [
+    { id: "apple", name: "Apple TV", url: "https://tv.apple.com/", color: "#1c1c1e", glyph: "TV", meta: "фильмы и сериалы" },
+    { id: "youtube", name: "YouTube", url: "https://www.youtube.com/tv", color: "#b31217", glyph: "YT", meta: "TV-режим" },
+    { id: "netflix", name: "Netflix", url: "https://www.netflix.com/", color: "#831010", glyph: "N", meta: "сериалы" },
+    { id: "kinopoisk", name: "Кинопоиск", url: "https://www.kinopoisk.ru/", color: "#c9a227", glyph: "КП", meta: "кино" },
+    { id: "ivi", name: "IVI", url: "https://www.ivi.ru/", color: "#e11b22", glyph: "ivi", meta: "онлайн" },
+    { id: "okko", name: "Okko", url: "https://okko.tv/", color: "#2b2d42", glyph: "Ok", meta: "онлайн" },
+    { id: "prime", name: "Prime Video", url: "https://www.primevideo.com/", color: "#0f171e", glyph: "Pv", meta: "видео" },
+    { id: "wink", name: "Wink", url: "https://wink.ru/", color: "#0e7490", glyph: "W", meta: "ТВ и кино" },
+    { id: "premier", name: "Premier", url: "https://premier.one/", color: "#111827", glyph: "Pr", meta: "сериалы" },
+    { id: "browser", name: "Браузер", url: "https://www.google.com/", color: "#3d7ea6", glyph: "◎", meta: "поиск" },
   ];
 
-  var grid = document.getElementById("app-grid");
+  var DEFAULT_INSTALLED = ["apple", "youtube", "netflix", "kinopoisk"];
+
+  var homeGrid = document.getElementById("home-grid");
+  var storeGrid = document.getElementById("store-grid");
   var clockEl = document.getElementById("clock");
   var toastEl = document.getElementById("toast");
-  var backdrop = document.getElementById("backdrop");
   var addForm = document.getElementById("add-form");
-  var perfToggle = document.getElementById("perf-toggle");
-  var motionToggle = document.getElementById("reduce-motion");
+  var heroLede = document.getElementById("hero-lede");
   var toastTimer = null;
   var focusables = [];
   var focusIndex = 0;
-  var openPanelId = null;
+  var currentTab = "home";
 
   function readJson(key, fallback) {
     try {
@@ -106,17 +44,24 @@
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
-      showToast("Не удалось сохранить на устройстве");
+      showToast("Не удалось сохранить");
     }
   }
 
-  function customApps() {
-    var list = readJson(STORAGE_APPS, []);
+  function installedList() {
+    var list = readJson(STORAGE_INSTALLED, null);
+    if (!list) {
+      list = DEFAULT_INSTALLED.map(function (id) {
+        var app = CATALOG.find(function (c) { return c.id === id; });
+        return app ? Object.assign({}, app, { builtin: true }) : null;
+      }).filter(Boolean);
+      writeJson(STORAGE_INSTALLED, list);
+    }
     return Array.isArray(list) ? list : [];
   }
 
-  function allApps() {
-    return BUILTIN.concat(customApps());
+  function saveInstalled(list) {
+    writeJson(STORAGE_INSTALLED, list);
   }
 
   function showToast(text) {
@@ -125,119 +70,167 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () {
       toastEl.hidden = true;
-    }, 2400);
+    }, 2200);
   }
 
   function tickClock() {
     var now = new Date();
-    var h = String(now.getHours()).padStart(2, "0");
-    var m = String(now.getMinutes()).padStart(2, "0");
-    clockEl.textContent = h + ":" + m;
+    clockEl.textContent =
+      String(now.getHours()).padStart(2, "0") +
+      ":" +
+      String(now.getMinutes()).padStart(2, "0");
   }
 
   function launch(url, name) {
     showToast("Запуск: " + name);
-    window.setTimeout(function () {
+    setTimeout(function () {
       window.location.href = url;
-    }, 180);
+    }, 160);
   }
 
-  function renderApps() {
-    var apps = allApps();
-    grid.innerHTML = "";
-    apps.forEach(function (app, index) {
-      var tile = document.createElement("button");
-      tile.type = "button";
-      tile.className = "app-tile";
-      tile.setAttribute("role", "listitem");
-      tile.setAttribute("data-nav", "");
-      tile.setAttribute("data-app-id", app.id);
-      tile.style.setProperty("--tile", app.color);
-      tile.style.animationDelay = 0.04 * index + "s";
+  function isInstalled(id) {
+    return installedList().some(function (a) { return a.id === id; });
+  }
 
-      var glyph = document.createElement("span");
-      glyph.className = "glyph";
-      glyph.textContent = app.glyph || app.name.slice(0, 2).toUpperCase();
+  function installApp(app) {
+    var list = installedList();
+    if (list.some(function (a) { return a.id === app.id; })) {
+      showToast("Уже установлено");
+      return;
+    }
+    list.push({
+      id: app.id,
+      name: app.name,
+      url: app.url,
+      color: app.color,
+      glyph: app.glyph || app.name.slice(0, 2).toUpperCase(),
+      meta: app.meta || "установлено",
+      builtin: !!app.builtin,
+    });
+    saveInstalled(list);
+    renderAll();
+    showToast("Установлено: " + app.name);
+  }
 
-      var textWrap = document.createElement("span");
-      var label = document.createElement("span");
-      label.className = "label";
-      label.textContent = app.name;
-      var meta = document.createElement("span");
-      meta.className = "meta";
-      meta.textContent = app.meta || (app.builtin ? "встроено" : "ваше");
-      textWrap.appendChild(label);
-      textWrap.appendChild(meta);
+  function uninstallApp(id) {
+    var next = installedList().filter(function (a) { return a.id !== id; });
+    saveInstalled(next);
+    renderAll();
+    showToast("Удалено");
+  }
 
-      tile.appendChild(glyph);
-      tile.appendChild(textWrap);
+  function makeTile(app, mode) {
+    var tile = document.createElement("div");
+    tile.className = "app-tile";
+    tile.setAttribute("role", "listitem");
+    tile.style.setProperty("--tile", app.color);
 
-      if (!app.builtin) {
-        var remove = document.createElement("button");
-        remove.type = "button";
-        remove.className = "remove";
-        remove.setAttribute("aria-label", "Удалить " + app.name);
-        remove.setAttribute("data-nav", "");
-        remove.textContent = "×";
-        remove.addEventListener("click", function (e) {
-          e.stopPropagation();
-          removeApp(app.id);
-        });
-        tile.appendChild(remove);
-      }
+    var glyph = document.createElement("span");
+    glyph.className = "glyph";
+    glyph.textContent = app.glyph || app.name.slice(0, 2).toUpperCase();
 
-      tile.addEventListener("click", function () {
+    var text = document.createElement("span");
+    var label = document.createElement("span");
+    label.className = "label";
+    label.textContent = app.name;
+    var meta = document.createElement("span");
+    meta.className = "meta";
+    meta.textContent = app.meta || "";
+    text.appendChild(label);
+    text.appendChild(meta);
+
+    tile.appendChild(glyph);
+    tile.appendChild(text);
+
+    if (mode === "home") {
+      var openBtn = document.createElement("button");
+      openBtn.type = "button";
+      openBtn.className = "tile-btn";
+      openBtn.setAttribute("data-nav", "");
+      openBtn.textContent = "Открыть";
+      openBtn.addEventListener("click", function () {
         launch(app.url, app.name);
       });
+      tile.appendChild(openBtn);
 
-      grid.appendChild(tile);
+      var remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "remove";
+      remove.setAttribute("data-nav", "");
+      remove.setAttribute("aria-label", "Удалить " + app.name);
+      remove.textContent = "×";
+      remove.addEventListener("click", function (e) {
+        e.stopPropagation();
+        uninstallApp(app.id);
+      });
+      tile.appendChild(remove);
+    } else {
+      var installed = isInstalled(app.id);
+      var action = document.createElement("button");
+      action.type = "button";
+      action.className = "tile-btn" + (installed ? " is-done" : "");
+      action.setAttribute("data-nav", "");
+      action.textContent = installed ? "Установлено" : "Установить";
+      action.disabled = installed;
+      action.addEventListener("click", function () {
+        installApp(app);
+      });
+      tile.appendChild(action);
+    }
+
+    return tile;
+  }
+
+  function renderHome() {
+    homeGrid.innerHTML = "";
+    installedList().forEach(function (app) {
+      homeGrid.appendChild(makeTile(app, "home"));
     });
+  }
+
+  function renderStore() {
+    storeGrid.innerHTML = "";
+    CATALOG.forEach(function (app) {
+      storeGrid.appendChild(makeTile(app, "store"));
+    });
+  }
+
+  function renderAll() {
+    renderHome();
+    renderStore();
     refreshFocusables();
   }
 
-  function removeApp(id) {
-    var next = customApps().filter(function (a) {
-      return a.id !== id;
+  function setTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll(".tab").forEach(function (el) {
+      el.classList.toggle("is-active", el.getAttribute("data-tab") === tab);
     });
-    writeJson(STORAGE_APPS, next);
-    renderApps();
-    showToast("Ярлык удалён");
-  }
+    document.getElementById("view-home").hidden = tab !== "home";
+    document.getElementById("view-store").hidden = tab !== "store";
+    document.getElementById("view-dns").hidden = tab !== "dns";
 
-  function closePanel() {
-    document.querySelectorAll(".panel").forEach(function (p) {
-      p.hidden = true;
-    });
-    backdrop.hidden = true;
-    openPanelId = null;
+    if (tab === "home") {
+      heroLede.textContent = "Ваши установленные приложения. Реклама Hisense режется через DNS на Mac.";
+    } else if (tab === "store") {
+      heroLede.textContent = "Каталог: нажмите «Установить» — приложение появится на главном экране Эфира.";
+    } else {
+      heroLede.textContent = "Схема как у «смены DNS»: Mac = DNS-сервер, ТВ ходит через него в магазин.";
+    }
     refreshFocusables();
-  }
-
-  function openPanel(id) {
-    closePanel();
-    var panel = document.getElementById("panel-" + id);
-    if (!panel) return;
-    panel.hidden = false;
-    backdrop.hidden = false;
-    openPanelId = id;
-    refreshFocusables();
-    var first = panel.querySelector("[data-nav]");
-    if (first) setFocusOn(first);
   }
 
   function refreshFocusables() {
-    var root = openPanelId
-      ? document.getElementById("panel-" + openPanelId)
-      : document;
-    focusables = Array.prototype.slice.call(
-      root.querySelectorAll("[data-nav]:not([disabled])")
-    ).filter(function (el) {
-      if (el.closest(".panel") && !openPanelId) return false;
-      if (el.hidden) return false;
-      var style = window.getComputedStyle(el);
-      return style.display !== "none" && style.visibility !== "hidden";
-    });
-    if (!focusables.length) return;
+    var root = document;
+    focusables = Array.prototype.slice
+      .call(root.querySelectorAll("[data-nav]:not([disabled])"))
+      .filter(function (el) {
+        if (el.hidden) return false;
+        var view = el.closest("section.apps");
+        if (view && view.hidden) return false;
+        var style = window.getComputedStyle(el);
+        return style.display !== "none" && style.visibility !== "hidden";
+      });
     if (focusIndex >= focusables.length) focusIndex = 0;
     applyFocusClass();
   }
@@ -253,7 +246,7 @@
     if (idx < 0) return;
     focusIndex = idx;
     applyFocusClass();
-    if (typeof el.focus === "function") el.focus({ preventScroll: false });
+    el.focus({ preventScroll: false });
   }
 
   function moveFocus(dx, dy) {
@@ -272,10 +265,8 @@
       var ey = r.top + r.height / 2;
       var vx = ex - cx;
       var vy = ey - cy;
-
       if (dx !== 0 && Math.sign(vx) !== dx) return;
       if (dy !== 0 && Math.sign(vy) !== dy) return;
-
       var primary = dx !== 0 ? Math.abs(vx) : Math.abs(vy);
       var secondary = dx !== 0 ? Math.abs(vy) : Math.abs(vx);
       var score = primary + secondary * 2.2;
@@ -286,8 +277,10 @@
     });
 
     if (best === null) {
-      if (dx > 0 || dy > 0) focusIndex = (focusIndex + 1) % focusables.length;
-      else focusIndex = (focusIndex - 1 + focusables.length) % focusables.length;
+      focusIndex =
+        dx > 0 || dy > 0
+          ? (focusIndex + 1) % focusables.length
+          : (focusIndex - 1 + focusables.length) % focusables.length;
     } else {
       focusIndex = best;
     }
@@ -296,37 +289,17 @@
     focusables[focusIndex].scrollIntoView({ block: "nearest", inline: "nearest" });
   }
 
-  function activateFocused() {
-    var el = focusables[focusIndex];
-    if (!el) return;
-    if (el.tagName === "INPUT" || el.tagName === "SELECT" || el.tagName === "TEXTAREA") {
-      el.focus();
-      return;
-    }
-    el.click();
-  }
-
-  function onAction(action, el) {
-    if (action === "launch-apple") {
-      launch("https://tv.apple.com/", "Apple TV");
-      return;
-    }
-    if (action === "open-panel") {
-      openPanel(el.getAttribute("data-panel"));
-      return;
-    }
-    if (action === "close-panel") {
-      closePanel();
-    }
-  }
-
   document.addEventListener("click", function (e) {
-    var target = e.target.closest("[data-action]");
-    if (!target) return;
-    onAction(target.getAttribute("data-action"), target);
+    var tabEl = e.target.closest("[data-tab]");
+    if (tabEl && tabEl.getAttribute("data-tab")) {
+      setTab(tabEl.getAttribute("data-tab"));
+      return;
+    }
+    var actionEl = e.target.closest("[data-action]");
+    if (actionEl && actionEl.getAttribute("data-action") === "launch-apple") {
+      launch("https://tv.apple.com/", "Apple TV");
+    }
   });
-
-  backdrop.addEventListener("click", closePanel);
 
   addForm.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -335,62 +308,27 @@
     var url = String(data.get("url") || "").trim();
     var color = String(data.get("color") || "#c4a35a");
     if (!name || !url) return;
-    if (!/^https?:\/\//i.test(url)) {
-      url = "https://" + url;
-    }
+    if (!/^https?:\/\//i.test(url)) url = "https://" + url;
     try {
       new URL(url);
     } catch (err) {
       showToast("Проверьте ссылку");
       return;
     }
-    var list = customApps();
-    list.push({
+    installApp({
       id: "c-" + Date.now().toString(36),
       name: name,
       url: url,
       color: color,
       glyph: name.slice(0, 2).toUpperCase(),
       meta: "ваше",
-      builtin: false,
     });
-    writeJson(STORAGE_APPS, list);
     addForm.reset();
-    closePanel();
-    renderApps();
-    showToast("Установлено: " + name);
-  });
-
-  function applyPrefs() {
-    var perf = localStorage.getItem(STORAGE_PERF) === "1";
-    var motion = localStorage.getItem(STORAGE_MOTION) === "1";
-    document.body.classList.toggle("perf", perf);
-    document.body.classList.toggle("reduce-motion", motion);
-    perfToggle.checked = perf;
-    motionToggle.checked = motion;
-  }
-
-  perfToggle.addEventListener("change", function () {
-    localStorage.setItem(STORAGE_PERF, perfToggle.checked ? "1" : "0");
-    applyPrefs();
-    showToast(perfToggle.checked ? "Лёгкий режим включён" : "Полный режим");
-  });
-
-  motionToggle.addEventListener("change", function () {
-    localStorage.setItem(STORAGE_MOTION, motionToggle.checked ? "1" : "0");
-    applyPrefs();
+    setTab("home");
   });
 
   document.addEventListener("keydown", function (e) {
     var key = e.key;
-    if (key === "Escape") {
-      if (openPanelId) {
-        e.preventDefault();
-        closePanel();
-      }
-      return;
-    }
-
     var tag = (e.target && e.target.tagName) || "";
     var typing = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
 
@@ -411,7 +349,8 @@
     } else if (key === "Enter") {
       if (typing && tag !== "SELECT") return;
       e.preventDefault();
-      activateFocused();
+      var el = focusables[focusIndex];
+      if (el) el.click();
     }
   });
 
@@ -425,15 +364,14 @@
     }
   });
 
-  // Default: light mode on for TV SoCs
   if (localStorage.getItem(STORAGE_PERF) === null) {
     localStorage.setItem(STORAGE_PERF, "1");
   }
+  document.body.classList.toggle("perf", localStorage.getItem(STORAGE_PERF) === "1");
 
-  applyPrefs();
   tickClock();
   setInterval(tickClock, 15000);
-  renderApps();
-  refreshFocusables();
+  renderAll();
+  setTab("home");
   if (focusables[0]) setFocusOn(focusables[0]);
 })();

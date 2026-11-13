@@ -1,0 +1,52 @@
+# Реклама / трекинг Hisense · VIDAA · общие баннеры
+# Не блокируем auth/update — иначе ТВ может отвалиться от аккаунтов.
+
+ads.hisense.com
+ad.hisense.com
+adx.hisense.com
+advertising.hisense.com
+promo.hisense.com
+promotion.hisense.com
+recommend.hisense.com
+recommendation.hisense.com
+recommendations.hisense.com
+msg.hisense.com
+message.hisense.com
+push.hisense.com
+analytics.hisense.com
+log.hisense.com
+logs.hisense.com
+metric.hisense.com
+metrics.hisense.com
+telemetry.hisense.com
+tracker.hisense.com
+stat.hisense.com
+stats.hisense.com
+hismarttv.com
+ads.hismarttv.com
+ad.hismarttv.com
+
+# VIDAA / партнёры рекламы (осторожный список)
+ads.vidaa.com
+ad.vidaa.com
+analytics.vidaa.com
+log.vidaa.com
+
+# Общие рекламные сети (безопасно для просмотра)
+doubleclick.net
+googleadservices.com
+googlesyndication.com
+pagead2.googlesyndication.com
+adservice.google.com
+adservice.google.ru
+adnxs.com
+adsrvr.org
+advertising.com
+adform.net
+criteo.com
+taboola.com
+outbrain.com
+moatads.com
+scorecardresearch.com
+amazon-adsystem.com
+ajax.googleadservices.com
