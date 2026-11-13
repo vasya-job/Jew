@@ -1,0 +1,10 @@
+{
+  "name": "efir-tv-shell",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Эфир — оболочка для Hisense VIDAA без рекламы",
+  "scripts": {
+    "start": "python3 -m http.server 4173 --bind 127.0.0.1",
+    "serve": "python3 -m http.server 4173 --bind 127.0.0.1"
+  }
+}
