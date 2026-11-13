@@ -2,15 +2,25 @@
 
 Веб-оболочка для Hisense на **VIDAA**: без рекламы в интерфейсе, свои ярлыки, быстрый Apple TV, навигация с пульта.
 
-## Открыть на телевизоре
+## Открыть на телевизоре (Mac и ТВ в одной сети)
 
-В браузере Hisense откройте:
+На **Mac** в Терминале:
 
-**https://raw.githack.com/vasya-job/Jew/main/index.html**
+```bash
+git clone https://github.com/vasya-job/Jew.git efir
+cd efir
+chmod +x serve-lan.sh
+./serve-lan.sh
+```
 
-Добавьте в закладки. Дальше живите в Эфире вместо главного экрана VIDAA с баннерами.
+Скрипт покажет адрес вида `http://192.168.x.x:8080/`.  
+На Hisense: **браузер** → введите этот адрес → в закладки.
 
-Исходники: https://github.com/vasya-job/Jew
+Mac должен быть включён, пока пользуетесь оболочкой (сервер крутится на нём).
+
+### Запасной вариант (без Mac)
+
+https://raw.githack.com/vasya-job/Jew/main/index.html
 
 ## Важно про VIDAA
 
